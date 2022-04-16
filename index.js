@@ -1,13 +1,25 @@
 const express = require('express');
 const cors = require('cors');
+const passport = require('passport');
 const { config } = require('./config/config');
+const { logErrors, errorHandler, boomErrorHandler, ormErrorHandler } = require('./middlewares/error.handler');
 const routerApi = require('./routes');
-const app = express();
-const port = config.port || 3000;
+const port = config.port || 3500;
 const whitelist = [config.corsWhiteList];
-const path = require('path');
+const i18next = require('i18next');
+const BackendI18n = require('i18next-fs-backend');
+const middleware = require('i18next-http-middleware');
 
+i18next.use(BackendI18n).use(middleware.LanguageDetector)
+.init({
+    fallbackLng:'es',
+    backend: {
+        loadPath: '.././locales/{{lng}}/translation.json'
+    }
+})
 
+const app = express();
+app.use(middleware.handle(i18next));
 app.use(express.json());
 
 const options = {
@@ -21,20 +33,19 @@ const options = {
 }
 
 app.use(cors(options));
-
+app.use(passport.initialize());
+require('./utils/auth');
 
 app.get('/', (req, res) => {
     res.send('Welcome to api-upload-rest-1.0');
 });
 
-
-
 routerApi(app);
 
-// app.use(logErrors);
-// app.use(ormErrorHandler);
-// app.use(boomErrorHandler);
-// app.use(errorHandler);
+app.use(boomErrorHandler);
+app.use(logErrors);
+app.use(ormErrorHandler);
+app.use(errorHandler);
 
 app.listen(port);
 

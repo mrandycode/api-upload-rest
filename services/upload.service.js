@@ -1,35 +1,16 @@
 const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
-// const constants = require('../shared/constants');
 
 class UploadImageService {
     constructor() { }
 
-    // async find() {
-    //     const personalProfiles = await models.PersonalProfile.findAll({
-    //         include: [...constants.PERSONAL_PROFILE]
-
-    //     });
-    //     return personalProfiles;
-    // }
 
     async findOne(id, modelName) {
-        const personalProfile = await models[modelName].findByPk(id, {
-            // include: [...constants.PERSONAL_PROFILE]
-        });
+        const personalProfile = await models[modelName].findByPk(id);
         if (!personalProfile) {
-            throw boom.notFound('Profile not found');
+            throw boom.notFound('NOT_FOUND');
         }
         return personalProfile;
-    }
-
-    async create(data, modelName) {
-
-        // const profile = await this.findOne(data.id);
-        // if (!profile) {
-        const newPersonalProfile = await models[modelName].create(data);
-        return newPersonalProfile;
-        // }
     }
 
     async update(request, modelName) {

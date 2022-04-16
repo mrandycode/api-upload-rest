@@ -3,10 +3,10 @@ const path = require('path');
 const { v4: uuidv5 } = require('uuid');
 
 let uuid = '';
-let uuidToSave = 'asdasd';
+let uuidToSave = '';
 
 const storage = multer.diskStorage({
-    destination: path.join(__dirname, '../public/uploads'),
+    destination: path.join(__dirname, '../../salvame-id/images'),
     filename: (req, file, cb) => {
         uuid = uuidv5() + path.extname(file.originalname).toLowerCase();
         cb(null, uuid);

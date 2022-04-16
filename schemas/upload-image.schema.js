@@ -8,10 +8,10 @@ const getProfileSchemaById = Joi.object({
     id: id.required()
 });
 
-const uploadImagePersonalProfileSchema = Joi.object({
+const uploadImageSchema = Joi.object({
     id: id.required(),
     country: country.required(),
     image
 });
 
-module.exports = { getProfileSchemaById, uploadImagePersonalProfileSchema }
+module.exports = { getProfileSchemaById, uploadImageSchema }

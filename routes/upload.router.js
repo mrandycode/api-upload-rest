@@ -1,12 +1,15 @@
 const express = require('express');
 const UploadService = require('../services/upload.service');
 const path = require('path');
-const { getProfileSchemaById, uploadImagePersonalProfileSchema } = require('../schemas/upload-image.schema');
 const router = express.Router();
 const service = new UploadService();
-const { upload, uuidToSave } = require('../middlewares/multer.handler');
+const { upload } = require('../middlewares/multer.handler');
+const validationHandler = require('../middlewares/validator.handler');
+const { checkApiKey, checkRoles } = require('../middlewares/auth.handler');
+const utils = require('../shared/utils');
+const passport = require('passport');
 
-let nameFile = '';
+
 router.post('/', upload, (req, res) => {
     // console.log(req.file);
     res.send('Uploaded');
@@ -14,21 +17,22 @@ router.post('/', upload, (req, res) => {
 
 // Static Files
 // Get File
-router.use(express.static(path.join(__dirname, '../public')));
+router.use(express.static(path.join(__dirname, '../../salvame-id')));
 
-router.patch('/personal',
+router.patch('/profile',
     upload,
-    // passport.authenticate('jwt', { session: false }),
-    // validationHandler(uploadImagePersonalProfileSchema, 'body'),
-    // checkApiKey,
-    // checkRoles('admin', 'customer'),
-
+    passport.authenticate('jwt', { session: false }),
+    // validationHandler(uploadImageSchema, 'body'),
+    checkApiKey,
+    checkRoles('admin', 'customer'),
     async (req, res, next) => {
         const filename = req.file.filename;
         try {
             const body = req.body;
             body.image = filename;
-            res.status(201).json(await service.update(body, 'PersonalProfile'));
+            const modelName = utils.getModelByProfileType(parseInt(body.type,10));
+            res.statusMessage = req.t('UPLOAD_IMAGE_SUCCESS');
+            res.status(201).json(await service.update(body, modelName));
         } catch (error) {
             next(error);
         }
@@ -36,36 +40,6 @@ router.patch('/personal',
 
 );
 
-router.post('/pet',
-    // passport.authenticate('jwt', { session: false }),
-    // validationHandler(uploadImagePersonalProfileSchema, 'body'),
-    // checkApiKey,
-    // checkRoles('admin', 'customer'),
-    async (req, res, next) => {
-        try {
-            const body = req.body;
-            res.status(201).json(await service.create(body, 'PetProfile'));
-        } catch (error) {
-            next(error);
-        }
-    }
-);
-
-router.post('/article',
-    // passport.authenticate('jwt', { session: false }),
-    // validationHandler(uploadImagePersonalProfileSchema, 'body'),
-    // checkApiKey,
-    // checkRoles('admin', 'customer'),
-    async (req, res, next) => {
-        try {
-            const body = req.body;
-            res.status(201).json(await service.create(body, 'ArticleProfile'));
-        } catch (error) {
-            next(error);
-        }
-    }
-);
-
-router.get(express.static(path.join(__dirname, '/public/uploads')));
+router.get(express.static(path.join(__dirname, '../../salvame-id/images')));
 
 module.exports = router;

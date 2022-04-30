@@ -12,6 +12,7 @@ const config = {
     jwtSecret: process.env.JWT_SECRET,
     apiKey: process.env.API_KEY,
     corsWhiteList: process.env.CORS_WHITE_LIST,
+    sizeFile: process.env.SIZE_FILE,
 };
 
 module.exports = { config };
